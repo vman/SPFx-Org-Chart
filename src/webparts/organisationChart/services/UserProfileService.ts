@@ -3,10 +3,10 @@ import { ServiceScope, HttpClient, IODataBatchOptions, ODataBatch } from '@micro
 
 export interface IUserProfileService {
   getPropertiesForCurrentUSer: () => Promise<IPerson>;
-  getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]>
+  getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]>;
 }
 
-export class UserProfileService {
+export class UserProfileService implements IUserProfileService {
 
   private httpClient: HttpClient;
   private serviceScope: ServiceScope;
@@ -16,7 +16,7 @@ export class UserProfileService {
     this.serviceScope = serviceScope;
   }
 
-  private getPropertiesForCurrentUSer(): Promise<IPerson> {
+  public getPropertiesForCurrentUSer(): Promise<IPerson> {
     return this.httpClient.get(
       `/_api/SP.UserProfiles.PeopleManager/GetMyProperties?$select=DisplayName,Title,PersonalUrl,PictureUrl,DirectReports,ExtendedManagers`)
       .then((response: Response) => {
@@ -24,19 +24,19 @@ export class UserProfileService {
       });
   }
 
-  private getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]> {
+  public getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]> {
     return new Promise<IPerson[]>((resolve, reject) => {
 
-      let arrayPersons: IPerson[] = [];
+      const arrayOfPersons: IPerson[] = [];
 
       const batchOpts: IODataBatchOptions = {};
 
       const odataBatch: ODataBatch = new ODataBatch(this.serviceScope, batchOpts);
 
-      let userResponses: Promise<Response>[] = [];
+      const userResponses: Promise<Response>[] = [];
 
-      for (let userLoginName of userLoginNames) {
-        let getUserProps: Promise<Response> = odataBatch.get(`/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v='${encodeURIComponent(userLoginName)}'
+      for (const userLoginName of userLoginNames) {
+        const getUserProps: Promise<Response> = odataBatch.get(`/_api/SP.UserProfiles.PeopleManager/GetPropertiesFor(accountName=@v)?@v='${encodeURIComponent(userLoginName)}'
         &$select=DisplayName,Title,PersonalUrl,PictureUrl,DirectReports,ExtendedManagers`);
         userResponses.push(getUserProps);
       }
@@ -49,10 +49,10 @@ export class UserProfileService {
 
             response.json().then((responseJSON: IPerson) => {
 
-              arrayPersons.push(responseJSON);
+              arrayOfPersons.push(responseJSON);
 
               if (index == (userResponses.length) - 1) {
-                resolve(arrayPersons);
+                resolve(arrayOfPersons);
               }
             });
           });

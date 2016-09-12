@@ -11,8 +11,6 @@ import * as strings from 'organisationChartStrings';
 import OrganisationChart, { IOrganisationChartProps } from './components/OrganisationChart';
 import { IOrganisationChartWebPartProps } from './IOrganisationChartWebPartProps';
 
-import ModuleLoader from '@microsoft/sp-module-loader';
-
 export default class OrganisationChartWebPart extends BaseClientSideWebPart<IOrganisationChartWebPartProps> {
 
   public constructor(context: IWebPartContext) {
@@ -20,8 +18,6 @@ export default class OrganisationChartWebPart extends BaseClientSideWebPart<IOrg
   }
 
   public render(): void {
-    //ModuleLoader.loadCss('https://appsforoffice.microsoft.com/fabric/2.2.0/fabric.min.css');
-    //ModuleLoader.loadCss('https://appsforoffice.microsoft.com/fabric/2.2.0/fabric.components.min.css');
 
     const element: React.ReactElement<IOrganisationChartProps> = React.createElement(OrganisationChart, {
       description: this.properties.description

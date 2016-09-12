@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { css } from 'office-ui-fabric-react';
 
 import { IOrganisationChartWebPartProps } from '../IOrganisationChartWebPartProps';
 
