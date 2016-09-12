@@ -41,13 +41,12 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
           <ul className={styles['ms-OrgChart-list']}>
           {this.state.managers.map((manager, index) => (
             <li key={index} className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']}>
+              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(manager.PersonalUrl)}>
                 <div className="ms-Persona">
                   <div className="ms-Persona-imageArea">
                     <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
                     <img className="ms-Persona-image" src={manager.PictureUrl}></img>
                   </div>
-                  <div className="ms-Persona-presence"></div>
                   <div className="ms-Persona-details">
                     <div className="ms-Persona-primaryText">{manager.DisplayName}</div>
                     <div className="ms-Persona-secondaryText">{manager.Title}</div>
@@ -61,13 +60,12 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
         <div className="ms-OrgChart-groupTitle">You</div>
           <ul className={styles['ms-OrgChart-list']}>
             <li className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']} target='_blank' href={this.state.user.PersonalUrl}>
+              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(this.state.user.PersonalUrl)}>
                 <div className="ms-Persona">
                   <div className="ms-Persona-imageArea">
                     <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
                     <img className="ms-Persona-image" src={this.state.user.PictureUrl}></img>
                   </div>
-                  <div className="ms-Persona-presence"></div>
                   <div className="ms-Persona-details">
                     <div className="ms-Persona-primaryText">{this.state.user.DisplayName}</div>
                     <div className="ms-Persona-secondaryText">{this.state.user.Title}</div>
@@ -82,13 +80,12 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
           <ul className={styles['ms-OrgChart-list']}>
           {this.state.reports.map((report, index) => (
             <li key={index} className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']} target='_blank' href={report.PersonalUrl}>
+              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(report.PersonalUrl)}>
                 <div className="ms-Persona">
                   <div className="ms-Persona-imageArea">
                     <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
                     <img className="ms-Persona-image" src={report.PictureUrl}></img>
                   </div>
-                  <div className="ms-Persona-presence"></div>
                   <div className="ms-Persona-details">
                     <div className="ms-Persona-primaryText">{report.DisplayName}</div>
                     <div className="ms-Persona-secondaryText">{report.Title}</div>
@@ -103,7 +100,7 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
   }
 
   public onProfileLinkClick (profileLink: string): void{
-    console.log(profileLink);
+    window.open(profileLink);
   }
 
   public componentDidMount(): void {
