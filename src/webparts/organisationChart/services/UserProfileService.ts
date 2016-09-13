@@ -1,10 +1,6 @@
 import { IPerson } from '../interfaces/IPerson';
 import { ServiceScope, HttpClient, IODataBatchOptions, ODataBatch } from '@microsoft/sp-client-base';
-
-export interface IUserProfileService {
-  getPropertiesForCurrentUSer: () => Promise<IPerson>;
-  getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]>;
-}
+import { IUserProfileService } from '../interfaces/IUserProfileService';
 
 export class UserProfileService implements IUserProfileService {
 
@@ -16,7 +12,7 @@ export class UserProfileService implements IUserProfileService {
     this.serviceScope = serviceScope;
   }
 
-  public getPropertiesForCurrentUSer(): Promise<IPerson> {
+  public getPropertiesForCurrentUser(): Promise<IPerson> {
     return this.httpClient.get(
       `/_api/SP.UserProfiles.PeopleManager/GetMyProperties?$select=DisplayName,Title,PersonalUrl,PictureUrl,DirectReports,ExtendedManagers`)
       .then((response: Response) => {
@@ -24,7 +20,15 @@ export class UserProfileService implements IUserProfileService {
       });
   }
 
-  public getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]> {
+  public getManagers(userLoginNames: string[]): Promise<IPerson[]> {
+    return this.getPropertiesForUsers(userLoginNames);
+  }
+
+  public getReports(userLoginNames: string[]): Promise<IPerson[]> {
+    return this.getPropertiesForUsers(userLoginNames);
+  }
+
+  private getPropertiesForUsers(userLoginNames: string[]): Promise<IPerson[]> {
     return new Promise<IPerson[]>((resolve, reject) => {
 
       const arrayOfPersons: IPerson[] = [];

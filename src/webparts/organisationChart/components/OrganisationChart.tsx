@@ -4,9 +4,11 @@ import { IOrganisationChartWebPartProps } from '../IOrganisationChartWebPartProp
 
 import styles from '../OrganisationChart.module.scss';
 
-import { ServiceScope, ServiceKey } from '@microsoft/sp-client-base';
-import { IUserProfileService, UserProfileService } from '../services/UserProfileService';
+import { ServiceScope, ServiceKey, EnvironmentType } from '@microsoft/sp-client-base';
+import { UserProfileService } from '../services/UserProfileService';
 import { IPerson } from '../interfaces/IPerson';
+import { IUserProfileService } from '../interfaces/IUserProfileService';
+import { MockUserProfileService } from '../mocks/MockUserProfileService';
 
 export interface IOrganisationChartWebPartState {
   managers?: IPerson[];
@@ -24,11 +26,11 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
     super(props);
 
     this.state = {
-      managers:[],
+      managers: [],
       user: {
 
       },
-      reports:[],
+      reports: [],
     };
   }
 
@@ -38,28 +40,28 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
         <div className="ms-OrgChart-group">
           <div className="ms-OrgChart-groupTitle">Managers</div>
           <ul className={styles['ms-OrgChart-list']}>
-          {this.state.managers.map((manager, index) => (
-            <li key={index} className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(manager.PersonalUrl)}>
-                <div className="ms-Persona">
-                  <div className="ms-Persona-imageArea">
-                    <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
-                    <img className="ms-Persona-image" src={manager.PictureUrl}></img>
+            {this.state.managers.map((manager, index) => (
+              <li key={index} className={styles['ms-OrgChart-listItem']}>
+                <button className={styles['ms-OrgChart-listItemBtn']} onClick={() => this.onProfileLinkClick(manager.PersonalUrl) }>
+                  <div className="ms-Persona">
+                    <div className="ms-Persona-imageArea">
+                      <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
+                      <img className="ms-Persona-image" src={manager.PictureUrl}></img>
+                    </div>
+                    <div className="ms-Persona-details">
+                      <div className="ms-Persona-primaryText">{manager.DisplayName}</div>
+                      <div className="ms-Persona-secondaryText">{manager.Title}</div>
+                    </div>
                   </div>
-                  <div className="ms-Persona-details">
-                    <div className="ms-Persona-primaryText">{manager.DisplayName}</div>
-                    <div className="ms-Persona-secondaryText">{manager.Title}</div>
-                  </div>
-                </div>
-              </button>
-            </li>))}
+                </button>
+              </li>)) }
           </ul>
         </div>
         <div className="ms-OrgChart-group">
-        <div className="ms-OrgChart-groupTitle">You</div>
+          <div className="ms-OrgChart-groupTitle">You</div>
           <ul className={styles['ms-OrgChart-list']}>
             <li className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(this.state.user.PersonalUrl)}>
+              <button className={styles['ms-OrgChart-listItemBtn']} onClick={() => this.onProfileLinkClick(this.state.user.PersonalUrl) }>
                 <div className="ms-Persona">
                   <div className="ms-Persona-imageArea">
                     <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
@@ -77,28 +79,28 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
         <div className="ms-OrgChart-group">
           <div className="ms-OrgChart-groupTitle">Reports</div>
           <ul className={styles['ms-OrgChart-list']}>
-          {this.state.reports.map((report, index) => (
-            <li key={index} className={styles['ms-OrgChart-listItem']}>
-              <button className={styles['ms-OrgChart-listItemBtn']} onClick={()=> this.onProfileLinkClick(report.PersonalUrl)}>
-                <div className="ms-Persona">
-                  <div className="ms-Persona-imageArea">
-                    <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
-                    <img className="ms-Persona-image" src={report.PictureUrl}></img>
+            {this.state.reports.map((report, index) => (
+              <li key={index} className={styles['ms-OrgChart-listItem']}>
+                <button className={styles['ms-OrgChart-listItemBtn']} onClick={() => this.onProfileLinkClick(report.PersonalUrl) }>
+                  <div className="ms-Persona">
+                    <div className="ms-Persona-imageArea">
+                      <i className="ms-Persona-placeholder ms-Icon ms-Icon--person"></i>
+                      <img className="ms-Persona-image" src={report.PictureUrl}></img>
+                    </div>
+                    <div className="ms-Persona-details">
+                      <div className="ms-Persona-primaryText">{report.DisplayName}</div>
+                      <div className="ms-Persona-secondaryText">{report.Title}</div>
+                    </div>
                   </div>
-                  <div className="ms-Persona-details">
-                    <div className="ms-Persona-primaryText">{report.DisplayName}</div>
-                    <div className="ms-Persona-secondaryText">{report.Title}</div>
-                  </div>
-                </div>
-              </button>
-            </li>))}
+                </button>
+              </li>)) }
           </ul>
         </div>
       </div>
     );
   }
 
-  public onProfileLinkClick (profileLink: string): void{
+  public onProfileLinkClick(profileLink: string): void {
     window.open(profileLink);
   }
 
@@ -109,17 +111,27 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
   private _getUserProperties(): void {
     const serviceScope: ServiceScope = ServiceScope.startNewRoot();
     const userProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("userprofileservicekey", UserProfileService);
-    const userProfileServiceInstance: IUserProfileService = serviceScope.createDefaultAndProvide(userProfileServiceKey);
+    const mockUserProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("mockuserprofileservicekey", MockUserProfileService);
     serviceScope.finish();
 
-    userProfileServiceInstance.getPropertiesForCurrentUSer().then((person: IPerson) => {
+    let userProfileServiceInstance: IUserProfileService;
+
+    const currentEnvType = this.props.environmentType;
+    if (currentEnvType == EnvironmentType.SharePoint || currentEnvType == EnvironmentType.ClassicSharePoint) {
+      userProfileServiceInstance = serviceScope.consume(userProfileServiceKey);
+    }
+    else {
+      userProfileServiceInstance = serviceScope.consume(mockUserProfileServiceKey);
+    }
+
+    userProfileServiceInstance.getPropertiesForCurrentUser().then((person: IPerson) => {
       this.setState({ user: person });
 
-      userProfileServiceInstance.getPropertiesForUsers(person.ExtendedManagers).then((mngrs: IPerson[]) => {
+      userProfileServiceInstance.getManagers(person.ExtendedManagers).then((mngrs: IPerson[]) => {
         this.setState({ managers: mngrs });
       });
 
-      userProfileServiceInstance.getPropertiesForUsers(person.DirectReports).then((rprts: IPerson[]) => {
+      userProfileServiceInstance.getReports(person.DirectReports).then((rprts: IPerson[]) => {
         this.setState({ reports: rprts });
       });
     });
