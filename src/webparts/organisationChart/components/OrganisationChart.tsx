@@ -110,23 +110,20 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
 
   private _getUserProperties(): void {
     // Create a new service scope with mappings
-    const serviceScope: ServiceScope = ServiceScope.startNewRoot();
-
-    // Mapping to be used when webpart runs in SharePoint
-    const userProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("userprofileservicekey", UserProfileService);
-
-     // Mapping to be used when webpart runs on local workbench
-    const mockUserProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("mockuserprofileservicekey", MockUserProfileService);
-    serviceScope.finish();
+    const serviceScope: ServiceScope = this.props.serviceScope;
 
     let userProfileServiceInstance: IUserProfileService;
 
     // Based on the type of environment, return the correct instance of the IUserProfileService interface
     const currentEnvType = this.props.environmentType;
     if (currentEnvType == EnvironmentType.SharePoint || currentEnvType == EnvironmentType.ClassicSharePoint) {
+      // Mapping to be used when webpart runs in SharePoint
+      const userProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("userprofileservicekey", UserProfileService);
       userProfileServiceInstance = serviceScope.consume(userProfileServiceKey);
     }
     else {
+      // Mapping to be used when webpart runs on local workbench
+      const mockUserProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("mockuserprofileservicekey", MockUserProfileService);
       userProfileServiceInstance = serviceScope.consume(mockUserProfileServiceKey);
     }
 

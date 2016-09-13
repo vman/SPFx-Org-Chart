@@ -1,5 +1,5 @@
 import { IPerson } from '../interfaces/IPerson';
-import { ServiceScope, HttpClient, IODataBatchOptions, ODataBatch } from '@microsoft/sp-client-base';
+import { ServiceScope, HttpClient, IODataBatchOptions, ODataBatch, httpClientServiceKey } from '@microsoft/sp-client-base';
 import { IUserProfileService } from '../interfaces/IUserProfileService';
 
 export class UserProfileService implements IUserProfileService {
@@ -8,8 +8,12 @@ export class UserProfileService implements IUserProfileService {
   private serviceScope: ServiceScope;
 
   constructor(serviceScope: ServiceScope) {
-    this.httpClient = new HttpClient(serviceScope);
-    this.serviceScope = serviceScope;
+    serviceScope.whenFinished(() => {
+
+      this.httpClient = serviceScope.consume(httpClientServiceKey);
+      this.serviceScope = serviceScope;
+
+    });
   }
 
   public getPropertiesForCurrentUser(): Promise<IPerson> {
