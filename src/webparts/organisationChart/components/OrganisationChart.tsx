@@ -109,13 +109,19 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
   }
 
   private _getUserProperties(): void {
+    // Create a new service scope with mappings
     const serviceScope: ServiceScope = ServiceScope.startNewRoot();
+
+    // Mapping to be used when webpart runs in SharePoint
     const userProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("userprofileservicekey", UserProfileService);
+
+     // Mapping to be used when webpart runs on local workbench
     const mockUserProfileServiceKey: ServiceKey<IUserProfileService> = ServiceKey.create<IUserProfileService>("mockuserprofileservicekey", MockUserProfileService);
     serviceScope.finish();
 
     let userProfileServiceInstance: IUserProfileService;
 
+    // Based on the type of environment, return the correct instance of the IUserProfileService interface
     const currentEnvType = this.props.environmentType;
     if (currentEnvType == EnvironmentType.SharePoint || currentEnvType == EnvironmentType.ClassicSharePoint) {
       userProfileServiceInstance = serviceScope.consume(userProfileServiceKey);
@@ -124,13 +130,16 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
       userProfileServiceInstance = serviceScope.consume(mockUserProfileServiceKey);
     }
 
+    // Get the current user details
     userProfileServiceInstance.getPropertiesForCurrentUser().then((person: IPerson) => {
       this.setState({ user: person });
 
+      // Get manager details
       userProfileServiceInstance.getManagers(person.ExtendedManagers).then((mngrs: IPerson[]) => {
         this.setState({ managers: mngrs });
       });
 
+      // Get details for reports
       userProfileServiceInstance.getReports(person.DirectReports).then((rprts: IPerson[]) => {
         this.setState({ reports: rprts });
       });
