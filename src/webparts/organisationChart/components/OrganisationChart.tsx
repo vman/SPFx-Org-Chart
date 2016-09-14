@@ -109,7 +109,7 @@ export default class OrganisationChart extends React.Component<IOrganisationChar
   }
 
   private _getUserProperties(): void {
-    // Create a new service scope with mappings
+    //Get hold of the webpart's service scope object
     const serviceScope: ServiceScope = this.props.serviceScope;
 
     let userProfileServiceInstance: IUserProfileService;
